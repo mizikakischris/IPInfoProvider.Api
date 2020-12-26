@@ -1,5 +1,6 @@
 ﻿using IPInfoProvider.Interfaces;
 using IPInfoProvider.Types.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace IPInfoProvider.Repository
@@ -29,10 +30,23 @@ namespace IPInfoProvider.Repository
             bool value = _db.IPDetails.Any(a => a.IP.ToLower().Trim() == ip.ToLower().Trim());
             return value;
         }
+
+        public bool IpExists(int id)
+        {
+            bool value = _db.IPDetails.Any(a => a.Id == id);
+            return value;
+        }
+
         public bool Save()
         {
             return _db.SaveChanges() >= 0 ? true : false;
         }
 
+        public bool UpdateIpDetails(IPDetails ipDetais)
+        {
+           
+                _db.IPDetails.Update(ipDetais);
+                return Save();
+        }
     }
 }

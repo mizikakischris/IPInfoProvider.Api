@@ -1,4 +1,5 @@
 ﻿using IPInfoProvider.Types.Models;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IPInfoProvider.Interfaces
@@ -9,8 +10,12 @@ namespace IPInfoProvider.Interfaces
 
         bool IpExists(string ip);
 
+        bool IpExists(int id);
+
         bool CreateIP(IPDetails ipDetails);
 
         bool Save();
+
+        bool UpdateIpDetails(IPDetails ipDetails);
     }
 }

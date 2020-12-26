@@ -1,11 +1,16 @@
 ﻿using AutoMapper;
+using IPInfoProvider.Exceptions;
 using IPInfoProvider.Helpers;
 using IPInfoProvider.Interfaces;
 using IPInfoProvider.Types.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -103,6 +108,80 @@ namespace IPInfoProvider.Services
             {
                 throw new Exception("Σφάλμα κατά την ανάκτηση τιμών από το IPStack.");
             }
+        }
+
+        public Guid UpdateIPDetails(List<IPDetailsDto> ipDetailsList)
+        {
+            ValidateIPDetails(ipDetailsList);
+            StartProcessing(ipDetailsList);
+            return Guid.NewGuid();
+        }
+
+        private void ValidateIPDetails(List<IPDetailsDto> detailsDtoList)
+        {
+            foreach (var item in detailsDtoList)
+            {
+                if (!_sqlRepo.IpExists(item.IP))
+                {
+                    throw new ErrorDetails
+                    {
+                        Description = $"IPDetails Not found for ip {item.IP}",
+                        StatusCode = StatusCodes.Status404NotFound,
+                    };
+                }
+            }
+        }
+        private void UpdateProcessing(List<IPDetailsDto> ipDetailsList)
+        {
+            
+            foreach (var item in ipDetailsList)
+            {
+
+                var ipDetailsModel = _mapper.Map<IPDetails>(item);
+                _sqlRepo.IpExists(ipDetailsModel.IP);
+                _sqlRepo.UpdateIpDetails(ipDetailsModel);
+            }
+        }
+
+        private void StartProcessing(List<IPDetailsDto> ipDetailsList)
+        {
+            int counter = 0;
+            int sizeToFetch = 2;
+            int total = 0;
+            int skipNumber = 0;
+            var sortedList = ipDetailsList.OrderBy(x => x.Country).ToList();
+            float result = 0;
+            Dictionary<Guid, float> dict = new Dictionary<Guid, float>();
+            while (total<=ipDetailsList.Count)
+            {
+                if (counter == 0)
+                {
+                    counter++;
+                    var list = sortedList.Take(2).ToList();
+                    UpdateProcessing(list);
+                    total += sizeToFetch; // total = 10
+                    skipNumber += sizeToFetch; // skip = 10
+
+                    result = total / sortedList.Count;
+                    dict.Add(Guid.NewGuid(), result);
+                    //event notify
+                    //pause executio
+                    //return guid 
+                    //come back and continue process
+                }
+                else
+                {
+                    var list = ipDetailsList.Skip(skipNumber).Take(sizeToFetch).ToList();
+                    UpdateProcessing(list);
+                    total += sizeToFetch; // 20
+
+                    result = total / sortedList.Count;
+                    dict.Add(Guid.NewGuid(), result);
+
+                    skipNumber += sizeToFetch; // 20
+                }
+            }
+            
         }
     }
 

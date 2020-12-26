@@ -20,5 +20,9 @@ namespace IPInfoProvider.Types.Models
 
         [DataMember(Name = "longitude")]
         public string Longitude { get; set; }
+
+        [DataMember(Name = "ip")]
+        public string IP { get; set; }
+
     }
 }

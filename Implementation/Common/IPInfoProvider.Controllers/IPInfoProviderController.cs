@@ -1,6 +1,8 @@
 ﻿using IPInfoProvider.Interfaces;
 using IPInfoProvider.Types.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -22,11 +24,26 @@ namespace IPInfoProvider.Controllers
             var response = await _service.GetDetailsAsync(request.IP);
             return Ok(response);
         }
+
+        [HttpPatch("{ip:int}")]
+        [Route("UpdateDetails")]
+        public ActionResult<Guid> UpdateIPDetails(List<IPDetailsDto> detailsDtoList)
+        {
+
+            var response = _service.UpdateIPDetails(detailsDtoList);
+            return Ok(response);
+        }
+
     }
+
+
+
+
+
     [DataContract]
     public class GetDetailsRequest
     {
-        [DataMember (Name ="ip")]
-        public string  IP { get; set; }
+        [DataMember(Name = "ip")]
+        public string IP { get; set; }
     }
 }
