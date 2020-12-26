@@ -5,6 +5,6 @@ namespace IPInfoProvider.Interfaces
 {
    public interface IIPInfoProviderSQLRepository
     {
-        Task<IPDetails> GetDetailsAsync(string ip);
+        IPDetails GetDetails(string ip);
     }
 }

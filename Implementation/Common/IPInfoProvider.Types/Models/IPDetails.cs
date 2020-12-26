@@ -20,5 +20,8 @@ namespace IPInfoProvider.Types.Models
 
         public string Latitude { get; set; }
         public string Longitude { get; set; }
+
+        [Column("IP_Adress", TypeName = "nvarchar(50)")]
+        public string IP { get; set; }
     }
 }

@@ -15,9 +15,9 @@ namespace IPInfoProvider.Repository
         {
             _db = db;
         }
-        public Task<IPDetails> GetDetailsAsync(string ip)
+        public IPDetails GetDetails(string ip)
         {
-           return _db.IPDetails.Where(x => x. == ip).FirstOrDefault();
+           return  _db.IPDetails.Where(x => x.IP == ip).FirstOrDefault();
           
         }
     }
