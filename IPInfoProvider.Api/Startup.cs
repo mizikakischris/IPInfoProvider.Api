@@ -1,15 +1,16 @@
 using IPInfoProvider.Controllers;
 using IPInfoProvider.Interfaces;
+using IPInfoProvider.Repository;
 using IPInfoProvider.Services;
 using IPInfoProvider.Types.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
 using System.Collections.Generic;
 
 namespace IPInfoProvider.Api
@@ -68,6 +69,10 @@ namespace IPInfoProvider.Api
         {
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
+
+            //SQL connection
+            services.AddDbContext<AppDbContext>
+             (options => options.UseSqlServer(Configuration.GetConnectionString("SQLConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

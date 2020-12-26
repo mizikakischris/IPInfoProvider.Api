@@ -34,7 +34,6 @@ namespace IPInfoProvider.Services
                 {
                     Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, _settings.AccessKey);
 
-
                     using (var response = await client.SendAsync(request))
                     {
                         var content = await response.Content.ReadAsStringAsync();

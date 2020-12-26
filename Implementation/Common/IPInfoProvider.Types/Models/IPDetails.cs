@@ -1,22 +1,24 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace IPInfoProvider.Types.Models
 {
-    [DataContract]
+    [Table("IPDetails")]
     public class IPDetails
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [DataMember(Name ="city")]
         public string  City { get; set; }
-        [DataMember(Name = "country_name")]
+
+        [Column("Country_Name", TypeName = "nvarchar(50)")]
         public string Country { get; set; }
-        [DataMember(Name = "continent_name")]
+
+        [Column("Continent_Name", TypeName = "nvarchar(50)")]
         public string Continent { get; set; }
-        [DataMember(Name = "latitude")]
+
         public string Latitude { get; set; }
-        [DataMember(Name = "longitude")]
         public string Longitude { get; set; }
     }
 }
