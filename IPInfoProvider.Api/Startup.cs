@@ -59,6 +59,7 @@ namespace IPInfoProvider.Api
         private void RegisterApiServices(IServiceCollection services)
         {
             services.AddScoped<IIPInfoProviderService, IPInfoProviderService>();
+            services.AddScoped<IIPInfoProviderSQLRepository, IPInfoProviderSQLRepository>();
         }
         private void RegisterHttpClients(IServiceCollection services)
         {

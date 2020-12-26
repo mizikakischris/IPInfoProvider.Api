@@ -15,12 +15,14 @@ namespace IPInfoProvider.Services
         private readonly IHttpClientFactory _client;
         private AppSettings _settings;
         private readonly IMemoryCache _cache;
+        private readonly IIPInfoProviderSQLRepository _sqlRepo;
 
-        public IPInfoProviderService(IHttpClientFactory client, IOptions<AppSettings> settings, IMemoryCache cache)
+        public IPInfoProviderService(IHttpClientFactory client, IOptions<AppSettings> settings, IMemoryCache cache, IIPInfoProviderSQLRepository sqlRepo)
         {
             _client = client;
             _settings = settings.Value;
             _cache = cache;
+            _sqlRepo = sqlRepo;
         }
         public async Task<IPDetails> GetDetailsAsync(string ip)
         {
@@ -28,22 +30,27 @@ namespace IPInfoProvider.Services
            bool cacheExists =  ExistsInCache(ip, _cache);
             if (!cacheExists)
             {
-
-                var client = _client.CreateClient();
-                using (var request = new HttpRequestMessage(HttpMethod.Get, _settings.BaseUrl))
+                
+                if (!_sqlRepo.IpExists(ip)) 
                 {
-                    Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, _settings.AccessKey);
-
-                    using (var response = await client.SendAsync(request))
+                    //Request data from external api: IPStack
+                    var client = _client.CreateClient();
+                    using (var request = new HttpRequestMessage(HttpMethod.Get, _settings.BaseUrl))
                     {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var responseObject = DeserializeResponse<IPDetails>(content);
+                        Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, _settings.AccessKey);
 
-                        _cache.Set<string>(ip, content);
-                        return responseObject;
+                        using (var response = await client.SendAsync(request))
+                        {
+                            var content = await response.Content.ReadAsStringAsync();
+                            var responseObject = DeserializeResponse<IPDetails>(content);
 
+                            _cache.Set<string>(ip, content);
+                            return responseObject;
+
+                        }
                     }
                 }
+               
             }
             else 
             {
