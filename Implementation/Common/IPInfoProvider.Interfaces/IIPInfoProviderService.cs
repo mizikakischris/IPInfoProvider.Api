@@ -1,10 +1,11 @@
 ﻿using IPInfoProvider.Types.Models;
 using System;
+using System.Threading.Tasks;
 
 namespace IPInfoProvider.Interfaces
 {
     public interface IIPInfoProviderService
     {
-        IPDetails GetDetails(string ip);
+        Task<IPDetails> GetDetailsAsync(string ip);
     }
 }
