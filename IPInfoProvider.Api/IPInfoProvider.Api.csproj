@@ -4,5 +4,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Implementation\Common\IPInfoProvider.Types\IPInfoProvider.Types.csproj" />
+  </ItemGroup>
+
 
 </Project>
