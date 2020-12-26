@@ -1,6 +1,7 @@
 ﻿using IPInfoProvider.Helpers;
 using IPInfoProvider.Interfaces;
 using IPInfoProvider.Types.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -13,31 +14,55 @@ namespace IPInfoProvider.Services
     {
         private readonly IHttpClientFactory _client;
         private AppSettings _settings;
+        private readonly IMemoryCache _cache;
 
-        public IPInfoProviderService(IHttpClientFactory client, IOptions<AppSettings> settings)
+        public IPInfoProviderService(IHttpClientFactory client, IOptions<AppSettings> settings, IMemoryCache cache)
         {
             _client = client;
             _settings = settings.Value;
+            _cache = cache;
         }
         public async Task<IPDetails> GetDetailsAsync(string ip)
         {
-            var client = _client.CreateClient();
-            using (var request = new HttpRequestMessage(HttpMethod.Get, _settings.BaseUrl))
+            //check if ip exists in cache
+           bool cacheExists =  ExistsInCache(ip, _cache);
+            if (!cacheExists)
             {
-                Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, _settings.AccessKey);
 
-
-                using (var response = await client.SendAsync(request))
+                var client = _client.CreateClient();
+                using (var request = new HttpRequestMessage(HttpMethod.Get, _settings.BaseUrl))
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    var responseObject = DeserializeResponse<IPDetails>(content);
-                    return responseObject;
+                    Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, _settings.AccessKey);
 
+
+                    using (var response = await client.SendAsync(request))
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        var responseObject = DeserializeResponse<IPDetails>(content);
+
+                        _cache.Set<string>(ip, content);
+                        return responseObject;
+
+                    }
                 }
             }
+            else 
+            {
+                var content =  _cache.Get<string>(ip);
+                var responseObject = DeserializeResponse<IPDetails>(content);
+
+                return responseObject;
+            }
+
 
         }
 
+        private bool ExistsInCache(string ip, IMemoryCache cache)
+        {
+           
+            return cache.TryGetValue<string>(ip, out var result);
+              
+        }
 
         private static T DeserializeResponse<T>(string content)
         {

@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 
 namespace IPInfoProvider.Api
@@ -28,7 +29,13 @@ namespace IPInfoProvider.Api
             RegisterApiServices(services);
             RegisterHttpClients(services);
             RegisterConfigurations(services);
+            RegisterCache(services);
             RegisterControllers(services);
+        }
+
+        private void RegisterCache(IServiceCollection services)
+        {
+            services.AddMemoryCache();
         }
 
         private void RegisterControllers(IServiceCollection services)
