@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using IPInfoProvider.Controllers;
+using IPInfoProvider.Interfaces;
+using IPInfoProvider.Services;
 using IPInfoProvider.Types.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.Collections.Generic;
 
 namespace IPInfoProvider.Api
 {
@@ -26,9 +25,32 @@ namespace IPInfoProvider.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            RegisterApiServices(services);
             RegisterHttpClients(services);
             RegisterConfigurations(services);
-            services.AddControllers();
+            RegisterControllers(services);
+        }
+
+        private void RegisterControllers(IServiceCollection services)
+        {
+            services.AddControllers()
+            .AddNewtonsoftJson(options =>
+            {
+                options.UseMemberCasing();
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.Converters = new List<JsonConverter>
+                {
+                    new StringEnumConverter
+                    {
+                        AllowIntegerValues = false
+                    }
+                };
+            })
+            .AddApplicationPart(typeof(IPInfoProviderController).Assembly);
+        }
+        private void RegisterApiServices(IServiceCollection services)
+        {
+            services.AddScoped<IIPInfoProviderService, IPInfoProviderService>();
         }
         private void RegisterHttpClients(IServiceCollection services)
         {
@@ -37,11 +59,8 @@ namespace IPInfoProvider.Api
 
         private void RegisterConfigurations(IServiceCollection services)
         {
-            //AppSettings 
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
-
-            // var appSettings = appSettingsSection.Get<AppSettings>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

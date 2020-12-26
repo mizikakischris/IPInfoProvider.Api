@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Implementation\Common\IPInfoProvider.Controllers\IPInfoProvider.Controllers.csproj" />
+    <ProjectReference Include="..\Implementation\Common\IPInfoProvider.Interfaces\IPInfoProvider.Interfaces.csproj" />
+    <ProjectReference Include="..\Implementation\Common\IPInfoProvider.Services\IPInfoProvider.Services.csproj" />
     <ProjectReference Include="..\Implementation\Common\IPInfoProvider.Types\IPInfoProvider.Types.csproj" />
   </ItemGroup>
 
