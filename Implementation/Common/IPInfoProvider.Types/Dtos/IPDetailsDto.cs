@@ -6,12 +6,12 @@ namespace IPInfoProvider.Types.Models
     [DataContract]
     public class IPDetailsDto
     {
-        
-        [DataMember(Name ="city")]
-        public string  City { get; set; }
-        [DataMember(Name = "country")]
+
+        [DataMember(Name = "city")]
+        public string City { get; set; }
+        [DataMember(Name = "country_name")]
         public string Country { get; set; }
-        [DataMember(Name = "continent")]
+        [DataMember(Name = "continent_name")]
         public string Continent { get; set; }
         [DataMember(Name = "latitude")]
         public string Latitude { get; set; }

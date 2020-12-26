@@ -10,9 +10,9 @@ namespace IPInfoProvider.Types.Models
 
         [DataMember(Name ="city")]
         public string  City { get; set; }
-        [DataMember(Name = "country")]
+        [DataMember(Name = "country_name")]
         public string Country { get; set; }
-        [DataMember(Name = "continent")]
+        [DataMember(Name = "continent_name")]
         public string Continent { get; set; }
         [DataMember(Name = "latitude")]
         public string Latitude { get; set; }

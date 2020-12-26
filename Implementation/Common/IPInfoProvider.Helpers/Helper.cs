@@ -9,7 +9,7 @@ namespace IPInfoProvider.Helpers
     {
         public static void BuildHttpRequestMessage(HttpRequestMessage request, string ip, string baseUrl, string accessKey)
         {
-            request.RequestUri = new Uri(baseUrl + ip + "?" + accessKey);
+            request.RequestUri = new Uri(baseUrl + ip + "?access_key=" + accessKey);
             request.Headers
                   .Accept
                   .Add(new MediaTypeWithQualityHeaderValue("application/json"));
