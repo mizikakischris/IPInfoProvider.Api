@@ -1,3 +1,5 @@
+using AutoMapper;
+using IPInfoProvider.Api.Mapper;
 using IPInfoProvider.Controllers;
 using IPInfoProvider.Interfaces;
 using IPInfoProvider.Repository;
@@ -60,6 +62,7 @@ namespace IPInfoProvider.Api
         {
             services.AddScoped<IIPInfoProviderService, IPInfoProviderService>();
             services.AddScoped<IIPInfoProviderSQLRepository, IPInfoProviderSQLRepository>();
+            services.AddAutoMapper(typeof(IpDetailsMappings));
         }
         private void RegisterHttpClients(IServiceCollection services)
         {

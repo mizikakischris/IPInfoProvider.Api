@@ -6,6 +6,6 @@ namespace IPInfoProvider.Interfaces
 {
     public interface IIPInfoProviderService
     {
-        Task<IPDetails> GetDetailsAsync(string ip);
+        Task<IPDetailsDto> GetDetailsAsync(string ip);
     }
 }
