@@ -134,7 +134,7 @@ namespace IPInfoProvider.Services
                     counter++;
 
                     //Take 10
-                    var list = sortedList.Take(2).ToList();
+                    var list = sortedList.Take(sizeToFetch).ToList();
 
                     PostToBuffer(bufferBlock, list);
 
@@ -202,19 +202,6 @@ namespace IPInfoProvider.Services
                     };
                 }
             }
-        }
-        private bool SubmitToDatabase(List<IPDetailsDto> ipDetailsList)
-        {
-
-            foreach (var item in ipDetailsList)
-            {
-
-                var ipDetailsModel = _mapper.Map<IPDetails>(item);
-
-               var res=  _sqlRepo.UpdateIpDetails(ipDetailsModel);
-               
-            }
-            return true;
         }
     }
 

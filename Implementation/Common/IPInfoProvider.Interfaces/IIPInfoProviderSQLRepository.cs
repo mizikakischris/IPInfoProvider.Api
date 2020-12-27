@@ -1,6 +1,4 @@
 ﻿using IPInfoProvider.Types.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace IPInfoProvider.Interfaces
 {

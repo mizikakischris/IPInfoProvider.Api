@@ -49,10 +49,6 @@ namespace IPInfoProvider.Controllers
 
     }
 
-
-
-
-
     [DataContract]
     public class GetDetailsRequest
     {

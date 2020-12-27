@@ -1,5 +1,4 @@
-﻿using System;
-namespace IPInfoProvider.Types.Models
+﻿namespace IPInfoProvider.Types.Models
 {
     public class AppSettings
     {

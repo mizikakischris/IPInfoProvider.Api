@@ -1,6 +1,5 @@
 ﻿using IPInfoProvider.Types.Models;
 using IPInfoProvider.Types.Responses;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
