@@ -67,8 +67,14 @@ namespace IPInfoProvider.Services
                             ipDetailsModel.IP = ip;
                             _sqlRepo.CreateIP(ipDetailsModel);
 
+                            //put Data in cache
+                            // Set cache options.
+                            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                                // Keep in cache for this time, reset time if accessed.
+                                .SetSlidingExpiration(TimeSpan.FromSeconds(60));
                             var serializedDto = JsonConvert.SerializeObject(deserializedDto);
-                            _cache.Set<string>(ip, serializedDto);
+                            _cache.Set<string>(ip, serializedDto,cacheEntryOptions);
+
                             Response<IPDetailsDto> responseObj = Helper.BuildResponse(deserializedDto);
                             return responseObj;
 
@@ -110,7 +116,7 @@ namespace IPInfoProvider.Services
         public async Task<Response<IPDetailsDto>> UpdateIPDetails(List<IPDetailsDto> ipDetailsList)
         {
             ValidateIPDetails(ipDetailsList);
-           var res = StartProcessing(ipDetailsList);
+           var res = await StartProcessing(ipDetailsList);
 
             Response<IPDetailsDto> resp = new Response<IPDetailsDto>
             {
@@ -119,7 +125,7 @@ namespace IPInfoProvider.Services
             return resp;
         }
 
-        private Dictionary<Guid, double>  StartProcessing(List<IPDetailsDto> ipDetailsList)
+        private async Task<Dictionary<Guid, double>>  StartProcessing(List<IPDetailsDto> ipDetailsList)
         {
             int counter = 0;
             int sizeToFetch = 2;
