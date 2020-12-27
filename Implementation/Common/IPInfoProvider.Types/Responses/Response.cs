@@ -15,7 +15,7 @@ namespace IPInfoProvider.Types.Responses
         public Payload<T> Payload { get; set; }
 
         [DataMember(Name = "guid")]
-        public Guid Guid { get; set; }
+        public string Guid { get; set; } = null;
         [DataMember(Name = "exception")]
         public ErrorDetails Exception { get; set; }
 

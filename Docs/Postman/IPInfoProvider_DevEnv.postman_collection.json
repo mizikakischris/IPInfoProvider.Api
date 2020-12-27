@@ -1,0 +1,95 @@
+{
+	"info": {
+		"_postman_id": "8ac50e5d-3b54-4a42-9784-7359c5597b07",
+		"name": "IPInfoProvider",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/api/IPInfoProvider/updatedetails",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\r\n    {\r\n        \"city\": \"city1\",\r\n        \"country_name\": \"country1\",\r\n        \"continent_name\": \"continet1\",\r\n        \"latitude\": \"latitude11\",\r\n        \"Longitude\": \"Longitude11\",\r\n        \"ip\": \"85.72.212.96\"\r\n    },\r\n    {\r\n        \"city\": \"city2\",\r\n        \"country_name\": \"country2\",\r\n        \"continent_name\": \"continet2\",\r\n        \"latitude\": \"latitude2\",\r\n        \"Longitude\": \"Longitude22\",\r\n        \"ip\": \"85.72.212.97\"\r\n    },\r\n    {\r\n        \"city\": \"city3\",\r\n        \"country_name\": \"country3\",\r\n        \"continent_name\": \"continet3\",\r\n        \"latitude\": \"latitude33\",\r\n        \"Longitude\": \"Longitude33\",\r\n        \"ip\": \"85.72.212.98\"\r\n    },\r\n    {\r\n        \"city\": \"city4\",\r\n        \"country_name\": \"country4\",\r\n        \"continent_name\": \"continet4\",\r\n        \"latitude\": \"latitude4\",\r\n        \"Longitude\": \"Longitude4\",\r\n        \"ip\": \"85.72.212.99\"\r\n    },\r\n    {\r\n        \"city\": \"city5\",\r\n        \"country_name\": \"country5\",\r\n        \"continent_name\": \"continet5\",\r\n        \"latitude\": \"latitude5\",\r\n        \"Longitude\": \"Longitude5\",\r\n        \"ip\": \"85.72.212.00\"\r\n    },\r\n    {\r\n        \"city\": \"city6\",\r\n        \"country_name\": \"country6\",\r\n        \"continent_name\": \"continet6\",\r\n        \"latitude\": \"latitude6\",\r\n        \"Longitude\": \"Longitude6\",\r\n        \"ip\": \"85.72.212.01\"\r\n    }\r\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44367/api/IPInfoProvider/updatedetails",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44367",
+					"path": [
+						"api",
+						"IPInfoProvider",
+						"updatedetails"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/api/IPInfoProvider/getdetails",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\r\n    \"ip\": \"85.72.212.96\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost:44367/api/IPInfoProvider/getdetails",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44367",
+					"path": [
+						"api",
+						"IPInfoProvider",
+						"getdetails"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://api.ipstack.com/85.72.212.96?access_key=649af0b7afaaf1d221aa06c54bcb8f9d",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://api.ipstack.com/85.72.212.96?access_key=649af0b7afaaf1d221aa06c54bcb8f9d",
+					"protocol": "http",
+					"host": [
+						"api",
+						"ipstack",
+						"com"
+					],
+					"path": [
+						"85.72.212.96"
+					],
+					"query": [
+						{
+							"key": "access_key",
+							"value": "649af0b7afaaf1d221aa06c54bcb8f9d"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

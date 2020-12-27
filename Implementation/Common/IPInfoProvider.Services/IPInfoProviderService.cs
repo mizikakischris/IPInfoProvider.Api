@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
@@ -48,7 +49,11 @@ namespace IPInfoProvider.Services
                     var client = _client.CreateClient();
                     using (var request = new HttpRequestMessage(HttpMethod.Get, _settings.BaseUrl))
                     {
-                        Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, _settings.AccessKey);
+                        //Decode the string
+                        string decodedAccessKey = Encoding.UTF8.GetString(
+                            Convert.FromBase64String(_settings.AccessKey));
+
+                        Helper.BuildHttpRequestMessage(request, ip, _settings.BaseUrl, decodedAccessKey);
 
                         using (var response = await client.SendAsync(request))
                         {
@@ -109,7 +114,7 @@ namespace IPInfoProvider.Services
 
             Response<IPDetailsDto> resp = new Response<IPDetailsDto>
             {
-                Guid = res.Keys.First()
+                Guid = res.Keys.First().ToString()
             };
             return resp;
         }
