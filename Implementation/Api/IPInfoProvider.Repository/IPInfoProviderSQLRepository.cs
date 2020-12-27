@@ -31,15 +31,9 @@ namespace IPInfoProvider.Repository
             return value;
         }
 
-        public bool IpExists(int id)
-        {
-            bool value = _db.IPDetails.Any(a => a.Id == id);
-            return value;
-        }
-
         public bool Save()
         {
-            return _db.SaveChanges() >= 0 ? true : false;
+            return _db.SaveChanges() >= 0? true : false;
         }
 
         public bool UpdateIpDetails(IPDetails ipDetais)

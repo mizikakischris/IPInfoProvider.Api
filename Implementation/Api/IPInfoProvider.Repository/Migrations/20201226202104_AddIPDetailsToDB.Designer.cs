@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPInfoProvider.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20201226122301_AddIPDetailsToDB")]
+    [Migration("20201226202104_AddIPDetailsToDB")]
     partial class AddIPDetailsToDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,10 +22,9 @@ namespace IPInfoProvider.Repository.Migrations
 
             modelBuilder.Entity("IPInfoProvider.Types.Models.IPDetails", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("IP")
+                        .HasColumnName("IP_Adress")
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
@@ -44,7 +43,7 @@ namespace IPInfoProvider.Repository.Migrations
                     b.Property<string>("Longitude")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("IP");
 
                     b.ToTable("IPDetails");
                 });

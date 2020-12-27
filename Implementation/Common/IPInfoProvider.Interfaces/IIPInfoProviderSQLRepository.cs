@@ -10,8 +10,6 @@ namespace IPInfoProvider.Interfaces
 
         bool IpExists(string ip);
 
-        bool IpExists(int id);
-
         bool CreateIP(IPDetails ipDetails);
 
         bool Save();

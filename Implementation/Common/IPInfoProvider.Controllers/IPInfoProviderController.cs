@@ -1,7 +1,8 @@
-﻿using IPInfoProvider.Interfaces;
+﻿using IPInfoProvider.Exceptions;
+using IPInfoProvider.Interfaces;
 using IPInfoProvider.Types.Models;
+using IPInfoProvider.Types.Responses;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
@@ -19,19 +20,31 @@ namespace IPInfoProvider.Controllers
         }
         [HttpPost]
         [Route("GetDetails")]
-        public async Task<ActionResult<IPDetailsDto>> GetDetails(GetDetailsRequest request)
+        public async Task<ActionResult<Response<IPDetailsDto>>> GetDetails(GetDetailsRequest request)
         {
             var response = await _service.GetDetailsAsync(request.IP);
             return Ok(response);
         }
 
-        [HttpPatch("{ip:int}")]
+        [HttpPatch]
         [Route("UpdateDetails")]
-        public ActionResult<Guid> UpdateIPDetails(List<IPDetailsDto> detailsDtoList)
+        public async Task<ActionResult<Response<IPDetailsDto>>> UpdateIPDetails(List<IPDetailsDto> detailsDtoList)
         {
-
-            var response = _service.UpdateIPDetails(detailsDtoList);
-            return Ok(response);
+            try
+            {
+                var response = await _service.UpdateIPDetails(detailsDtoList);
+                return Ok(response);
+            }
+            catch (ErrorDetails ex)
+            {
+                Response<IPDetailsDto> resp = new Response<IPDetailsDto>
+                {
+                    Payload = null,
+                    Exception = ex
+                };
+                return resp;
+            }
+        
         }
 
     }

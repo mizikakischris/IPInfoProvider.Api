@@ -10,8 +10,7 @@ namespace IPInfoProvider.Repository.Migrations
                 name: "IPDetails",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IP_Adress = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     City = table.Column<string>(nullable: true),
                     Country_Name = table.Column<string>(type: "nvarchar(50)", nullable: true),
                     Continent_Name = table.Column<string>(type: "nvarchar(50)", nullable: true),
@@ -20,7 +19,7 @@ namespace IPInfoProvider.Repository.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IPDetails", x => x.Id);
+                    table.PrimaryKey("PK_IPDetails", x => x.IP_Adress);
                 });
         }
 

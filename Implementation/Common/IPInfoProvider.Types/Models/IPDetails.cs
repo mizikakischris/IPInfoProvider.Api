@@ -7,8 +7,8 @@ namespace IPInfoProvider.Types.Models
     public class IPDetails
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        [Column("IP_Adress", TypeName = "nvarchar(50)")]
+        public string IP { get; set; }
 
         public string  City { get; set; }
 
@@ -21,7 +21,6 @@ namespace IPInfoProvider.Types.Models
         public string Latitude { get; set; }
         public string Longitude { get; set; }
 
-        [Column("IP_Adress", TypeName = "nvarchar(50)")]
-        public string IP { get; set; }
+        
     }
 }

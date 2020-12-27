@@ -20,10 +20,9 @@ namespace IPInfoProvider.Repository.Migrations
 
             modelBuilder.Entity("IPInfoProvider.Types.Models.IPDetails", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<string>("IP")
+                        .HasColumnName("IP_Adress")
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
@@ -36,17 +35,13 @@ namespace IPInfoProvider.Repository.Migrations
                         .HasColumnName("Country_Name")
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("IP")
-                        .HasColumnName("IP_Adress")
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("Latitude")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Longitude")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("IP");
 
                     b.ToTable("IPDetails");
                 });

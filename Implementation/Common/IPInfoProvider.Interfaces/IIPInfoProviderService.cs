@@ -1,4 +1,5 @@
 ﻿using IPInfoProvider.Types.Models;
+using IPInfoProvider.Types.Responses;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,8 +8,8 @@ namespace IPInfoProvider.Interfaces
 {
     public interface IIPInfoProviderService
     {
-        Task<IPDetailsDto> GetDetailsAsync(string ip);
+        Task<Response<IPDetailsDto>> GetDetailsAsync(string ip);
 
-        Guid UpdateIPDetails(List<IPDetailsDto> ipDetailsList);
+        Task <Response<IPDetailsDto>> UpdateIPDetails(List<IPDetailsDto> ipDetailsList);
     }
 }

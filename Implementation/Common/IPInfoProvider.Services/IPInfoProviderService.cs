@@ -3,8 +3,8 @@ using IPInfoProvider.Exceptions;
 using IPInfoProvider.Helpers;
 using IPInfoProvider.Interfaces;
 using IPInfoProvider.Types.Models;
+using IPInfoProvider.Types.Responses;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 
 namespace IPInfoProvider.Services
 {
@@ -25,7 +26,7 @@ namespace IPInfoProvider.Services
         private readonly IMapper _mapper;
 
         public IPInfoProviderService(
-            IHttpClientFactory client, 
+            IHttpClientFactory client,
             IOptions<AppSettings> settings, IMemoryCache cache, IIPInfoProviderSQLRepository sqlRepo, IMapper mapper)
         {
             _client = client;
@@ -34,10 +35,10 @@ namespace IPInfoProvider.Services
             _sqlRepo = sqlRepo;
             _mapper = mapper;
         }
-        public async Task<IPDetailsDto> GetDetailsAsync(string ip)
+        public async Task<Response<IPDetailsDto>> GetDetailsAsync(string ip)
         {
             //check if ip exists in cache
-           bool cacheExists =  ExistsInCache(ip, _cache);
+            bool cacheExists = ExistsInCache(ip, _cache);
             if (!cacheExists)
             {
                 //check if exists in DB
@@ -51,8 +52,10 @@ namespace IPInfoProvider.Services
 
                         using (var response = await client.SendAsync(request))
                         {
+                            if (!response.IsSuccessStatusCode)
+                                await Helper.HandleNonOkAsync(response);
                             var content = await response.Content.ReadAsStringAsync();
-                            var deserializedDto = DeserializeResponse<IPDetailsDto>(content);
+                            var deserializedDto = Helper.DeserializeResponse<IPDetailsDto>(content);
 
                             //write to Db
                             var ipDetailsModel = _mapper.Map<IPDetails>(deserializedDto);
@@ -61,60 +64,129 @@ namespace IPInfoProvider.Services
 
                             var serializedDto = JsonConvert.SerializeObject(deserializedDto);
                             _cache.Set<string>(ip, serializedDto);
-                            return deserializedDto;
+                            Response<IPDetailsDto> responseObj = Helper.BuildResponse(deserializedDto);
+                            return responseObj;
 
                         }
                     }
                 }
-                else 
+                else
                 {
                     //fetch from db
-                   var ipDetailsModel = _sqlRepo.GetDetails(ip);
+                    var ipDetailsModel = _sqlRepo.GetDetails(ip);
                     var ipDetailsDto = _mapper.Map<IPDetailsDto>(ipDetailsModel);
-                   var serializedDto =  JsonConvert.SerializeObject(ipDetailsDto);
+                    var serializedDto = JsonConvert.SerializeObject(ipDetailsDto);
 
                     //put data in cache
                     _cache.Set<string>(ip, serializedDto);
-
-                    return ipDetailsDto;
+                    Response<IPDetailsDto> responseObj = Helper.BuildResponse(ipDetailsDto);
+                    return responseObj;
                 }
-               
-            }
-            else 
-            {
-                var content =  _cache.Get<string>(ip);
-                var deserializedDto = DeserializeResponse<IPDetailsDto>(content);
 
-                return deserializedDto;
+            }
+            else
+            {
+                var content = _cache.Get<string>(ip);
+                var deserializedDto = Helper.DeserializeResponse<IPDetailsDto>(content);
+                Response<IPDetailsDto> responseObj = Helper.BuildResponse(deserializedDto);
+                return responseObj;
             }
 
 
         }
-
         private bool ExistsInCache(string ip, IMemoryCache cache)
         {
-           
+
             return cache.TryGetValue<string>(ip, out var result);
-              
+
         }
 
-        private static T DeserializeResponse<T>(string content)
-        {
-            try
-            {
-                return JsonConvert.DeserializeObject<T>(content);
-            }
-            catch (JsonException ex)
-            {
-                throw new Exception("Σφάλμα κατά την ανάκτηση τιμών από το IPStack.");
-            }
-        }
 
-        public Guid UpdateIPDetails(List<IPDetailsDto> ipDetailsList)
+        public async Task<Response<IPDetailsDto>> UpdateIPDetails(List<IPDetailsDto> ipDetailsList)
         {
             ValidateIPDetails(ipDetailsList);
-            StartProcessing(ipDetailsList);
-            return Guid.NewGuid();
+           var res = StartProcessing(ipDetailsList);
+
+            Response<IPDetailsDto> resp = new Response<IPDetailsDto>
+            {
+                Guid = res.Keys.First()
+            };
+            return resp;
+        }
+
+        private Dictionary<Guid, double>  StartProcessing(List<IPDetailsDto> ipDetailsList)
+        {
+            int counter = 0;
+            int sizeToFetch = 2;
+            int total = 0;
+            int skipNumber = 0;
+            var sortedList = ipDetailsList.OrderBy(x => x.Country).ToList();
+            double result = 0;
+            Dictionary<Guid, double> dict = new Dictionary<Guid, double>();
+
+            var bufferBlock = new BufferBlock<IPDetailsDto>();
+
+
+            while (total < ipDetailsList.Count)
+            {
+                if (counter == 0)
+                {
+                    counter++;
+
+                    //Take 10
+                    var list = sortedList.Take(2).ToList();
+
+                    PostToBuffer(bufferBlock, list);
+
+                    //Update DB
+                    ReceiveFromBuffer(bufferBlock, list);
+
+                    total += sizeToFetch; 
+                    skipNumber += sizeToFetch; 
+
+                }
+                else
+                {
+                    var list = ipDetailsList.Skip(skipNumber).Take(sizeToFetch).ToList();
+                    PostToBuffer(bufferBlock, list);
+
+                    //Update DB
+                    ReceiveFromBuffer(bufferBlock, list);
+
+                    total += sizeToFetch; // 20
+                    result = (double)total / sortedList.Count;
+                    skipNumber += sizeToFetch; // 20
+                }
+             
+            }
+             dict.Add(Guid.NewGuid(), result);
+            return dict;
+
+        }
+
+        private void ReceiveFromBuffer(BufferBlock<IPDetailsDto> bufferBlock, List<IPDetailsDto> list)
+        {
+            foreach (var item in list)
+            {
+                var received = bufferBlock.Receive();
+
+                //update cache
+                var serializedDto = JsonConvert.SerializeObject(received);
+                _cache.Set<string>(received.IP, serializedDto);
+
+                //update db
+                var ipDetailsModel = _mapper.Map<IPDetails>(item);
+
+                var res = _sqlRepo.UpdateIpDetails(ipDetailsModel);
+            }
+        }
+
+        private static void PostToBuffer(BufferBlock<IPDetailsDto> bufferBlock, List<IPDetailsDto> list)
+        {
+            foreach (var item in list)
+            {
+                bufferBlock.Post(item);
+            }
         }
 
         private void ValidateIPDetails(List<IPDetailsDto> detailsDtoList)
@@ -131,57 +203,18 @@ namespace IPInfoProvider.Services
                 }
             }
         }
-        private void UpdateProcessing(List<IPDetailsDto> ipDetailsList)
+        private bool SubmitToDatabase(List<IPDetailsDto> ipDetailsList)
         {
-            
+
             foreach (var item in ipDetailsList)
             {
 
                 var ipDetailsModel = _mapper.Map<IPDetails>(item);
-                _sqlRepo.IpExists(ipDetailsModel.IP);
-                _sqlRepo.UpdateIpDetails(ipDetailsModel);
+
+               var res=  _sqlRepo.UpdateIpDetails(ipDetailsModel);
+               
             }
-        }
-
-        private void StartProcessing(List<IPDetailsDto> ipDetailsList)
-        {
-            int counter = 0;
-            int sizeToFetch = 2;
-            int total = 0;
-            int skipNumber = 0;
-            var sortedList = ipDetailsList.OrderBy(x => x.Country).ToList();
-            float result = 0;
-            Dictionary<Guid, float> dict = new Dictionary<Guid, float>();
-            while (total<=ipDetailsList.Count)
-            {
-                if (counter == 0)
-                {
-                    counter++;
-                    var list = sortedList.Take(2).ToList();
-                    UpdateProcessing(list);
-                    total += sizeToFetch; // total = 10
-                    skipNumber += sizeToFetch; // skip = 10
-
-                    result = total / sortedList.Count;
-                    dict.Add(Guid.NewGuid(), result);
-                    //event notify
-                    //pause executio
-                    //return guid 
-                    //come back and continue process
-                }
-                else
-                {
-                    var list = ipDetailsList.Skip(skipNumber).Take(sizeToFetch).ToList();
-                    UpdateProcessing(list);
-                    total += sizeToFetch; // 20
-
-                    result = total / sortedList.Count;
-                    dict.Add(Guid.NewGuid(), result);
-
-                    skipNumber += sizeToFetch; // 20
-                }
-            }
-            
+            return true;
         }
     }
 

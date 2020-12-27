@@ -22,4 +22,8 @@
     <ProjectReference Include="..\..\Common\IPInfoProvider.Types\IPInfoProvider.Types.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

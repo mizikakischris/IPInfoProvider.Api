@@ -1,6 +1,7 @@
-﻿using IPInfoProvider.Exceptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using IPInfoProvider.Exceptions;
 using System.Runtime.Serialization;
+using System;
 
 namespace IPInfoProvider.Types.Responses
 {
@@ -13,14 +14,21 @@ namespace IPInfoProvider.Types.Responses
         [DataMember(Name = "payload")]
         public Payload<T> Payload { get; set; }
 
+        [DataMember(Name = "guid")]
+        public Guid Guid { get; set; }
         [DataMember(Name = "exception")]
         public ErrorDetails Exception { get; set; }
 
     }
 
 
-    public class Payload<T> where T : class
+    public class Payload<T> where T: class 
     {
-        public T PayloadObject;
+        [DataMember(Name = "ipDetails")]
+        public T IPDetails { get; set; }
+
+        [DataMember(Name = "responseUpdate")]
+        public T ResponseUpdate { get; set; }
+
     }
 }
